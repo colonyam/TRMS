@@ -1,30 +1,33 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login
+from .forms import LoginForm
 from django.contrib import messages
-from django.shortcuts import render
 
-def home(request):
-    return render(request, 'home.html')
-
-def register(request):
+def login_view(request):
     if request.method == 'POST':
-        # Get form values
-        username = request.POST['username']
-        password = request.POST['password']
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    # Check if the user has admin access
+                    if user.is_staff or user.is_superuser:
+                        # Redirect the user to the Django admin dashboard
+                        return redirect('/admin/')
+                    else:
+                        # Redirect to a different page for non-admin users
+                        return redirect('home')
+                else:
+                    # Account is inactive, add an error message
+                    messages.error(request, 'Your account is inactive.')
+            else:
+                # Authentication failed, add an error message
+                messages.error(request, 'Invalid username or password.')
+    else:
+        form = LoginForm()
 
-        # Create user
-        user = User.objects.create_user(username=username, password=password)
-        user.save()
-
-        # Authenticate and login the user
-        user = authenticate(username=username, password=password)
-        login(request, user)
-        
-        # Redirect to a success page
-        return redirect('home')  # Replace 'success_page' with your desired redirect
-
-    return render(request, 'register.html')  # Render your registration template
-
-# Create your views here.
+    return render(request, 'login.html', {'form': form})
