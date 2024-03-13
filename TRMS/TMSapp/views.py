@@ -19,18 +19,7 @@ def login_view(request):
             
             if user is not None and user.is_active:
                 login(request, user)
-                
-                # Direct TMS Administrators to the Django admin site
-                if user.is_staff or user.groups.filter(name='TMS Administrator').exists():
-                    return redirect('/admin/')
-                
-                # Redirect based on group membership for other users
-                elif user.groups.filter(name='Manager').exists():
-                    return redirect('manager_dashboard')  # Redirect to Manager dashboard
-                elif user.groups.filter(name='Driver').exists():
-                    return redirect('driver_dashboard')  # Redirect to Driver dashboard
-                else:
-                    messages.error(request, 'No role assigned. Please contact the administrator.')
+                return redirect('driver')  # Redirect all users to the drivers page after login
             else:
                 messages.error(request, 'Invalid login credentials.')
     else:
