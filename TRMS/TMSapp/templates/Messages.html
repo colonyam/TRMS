@@ -1,0 +1,18 @@
+{% for message in received_messages %}
+    <p>From: {{ message.sender.username }}</p>
+    <p>Content: {{ message.content }}</p>
+    <hr>
+{% endfor %}
+{% if received_messages %}
+    <ul>
+    {% for message in received_messages %}
+        <li>
+            From: {{ message.sender.username }}<br>
+            Subject: {{ message.subject }}<br>
+            Message: {{ message.body }}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You have no messages.</p>
+{% endif %}
