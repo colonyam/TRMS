@@ -1,6 +1,9 @@
 from fileinput import FileInput
+from mailbox import Message
 from django.forms.widgets import FileInput
 from django import forms
+from django import forms
+from .models import Message
 
 class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Driving License/National Identification Number'}))
@@ -24,3 +27,9 @@ class ProfileForm(ModelForm):
         widgets = {
             'profile_img': FileInput(),
         }
+        from .models import Message
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['sender', 'recipient', 'subject', 'body']

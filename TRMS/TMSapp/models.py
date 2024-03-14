@@ -26,3 +26,32 @@ class Profile(models.Model):
 
     def __str__(self):
         return "{self.user.username} 's profile"
+    
+# class Message(models.Model):
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+#     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+#     content = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    subject = models.CharField(max_length=255, default='No Subject')
+    body = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    category = models.CharField(max_length=100, default='General')
+
+    def __str__(self):
+        return f"From: {self.sender}, To: {self.recipient}, Subject: {self.subject}"
+
+class Task(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    assignee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateTimeField()
+
+    def __str__(self):
+        return self.title

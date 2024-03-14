@@ -8,6 +8,10 @@ from django.contrib.auth.decorators import login_required
 from .models import Driver
 from .forms import DriverForm
 from django.contrib.auth.models import User
+from .models import Message
+from .models import Task, Message
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Message, User
 
 def login_view(request):
     if request.method == 'POST':
@@ -106,3 +110,26 @@ def profile(request):
         form = DriverForm(instance= request.user.profile)
     context = {'form':form}  
     return render (request,'TMSapp/driver.html', context)
+def compose_message(request):
+    if request.method == 'POST':
+        body = request.POST.get('content')
+        recipient_id = request.POST.get('receiver_id')
+        recipient = User.objects.get(id=recipient_id)
+        Message.objects.create(sender=request.user, recipient=recipient, body=body)
+        return redirect('inbox')
+    return render(request, 'Message.html')
+
+@login_required
+def inbox(request):
+    received_messages = Message.objects.filter(recipient=request.user)
+    return render(request, 'inbox.html', {'received_messages': received_messages})
+from django.shortcuts import render
+from .models import Task, Message
+
+def tasks_view(request):
+    tasks = Task.objects.filter(driver=request.user)
+    return render(request, 'tasks.html', {'tasks': tasks})
+
+def messages_view(request):
+    received_messages = Message.objects.filter(recipient=request.user)
+    return render(request, 'messages.html', {'received_messages': received_messages})
